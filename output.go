@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"sync"
 )
 
@@ -91,5 +92,5 @@ func (of *Output) WriteLine(left, right string, isError bool) {
 // Output returns the contexts of the output as a list of strings
 // where each item is a line.
 func (of *Output) Output() string {
-	return of.outputBuffer.String()
+	return strings.TrimSpace(of.outputBuffer.String())
 }

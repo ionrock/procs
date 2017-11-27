@@ -24,7 +24,7 @@ func TestNewCmd(t *testing.T) {
 
 	for _, cmdTest := range newCmdTests {
 		for i, part := range cmdTest.parts {
-			Expect(t, part).To(Equal(cmdTest.cmd.Cmd.Args[i]))
+			Expect(t, cmdTest.cmd.Cmd.Args[i]).To(Equal(part))
 		}
 	}
 }
@@ -40,9 +40,7 @@ func TestEnv(t *testing.T) {
 	})
 
 	o.Spec("include env", func(t *testing.T, envvar string) {
-		env := map[string]string{
-			"foo": "hello world",
-		}
+		env := map[string]string{"foo": "hello world"}
 		environ := procs.ParseEnv(procs.Env(env, true))
 
 		Expect(t, environ).To(HaveKey(envvar))

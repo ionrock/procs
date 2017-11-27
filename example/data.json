@@ -1,0 +1,7 @@
+{
+  "source": "https://my.example.org",
+  "user": "foo",
+  "model": "widget",
+  "action": "create",
+  "args": "-f new -i improved"
+}
