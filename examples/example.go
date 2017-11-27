@@ -41,6 +41,6 @@ func main() {
 		},
 	}
 
-	cmd := knife.Command("cookbook", "show", "foo")
+	cmd := knife.Command("cookbook", "show", []string{"foo"})
 	cmd.Run()
 }

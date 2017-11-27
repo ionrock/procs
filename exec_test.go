@@ -2,7 +2,6 @@ package procs_test
 
 import (
 	"os"
-	"os/exec"
 	"testing"
 
 	"github.com/apoydence/onpar"
@@ -13,7 +12,7 @@ import (
 
 func TestNewCmd(t *testing.T) {
 	newCmdTests := []struct {
-		cmd   *exec.Cmd
+		cmd   *procs.Proc
 		parts []string
 	}{
 		// Make sure we split more than one part
@@ -25,9 +24,7 @@ func TestNewCmd(t *testing.T) {
 
 	for _, cmdTest := range newCmdTests {
 		for i, part := range cmdTest.parts {
-			if part != cmdTest.cmd.Args[i] {
-				t.Errorf("parts do not match: %q != %q", part, cmdTest.cmd.Args[i])
-			}
+			Expect(t, part).To(Equal(cmdTest.cmd.Cmd.Args[i]))
 		}
 	}
 }
