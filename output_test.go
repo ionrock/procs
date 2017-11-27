@@ -14,11 +14,11 @@ func TestOutputFactory(t *testing.T) {
 	defer o.Run(t)
 
 	o.Group("capture", func() {
-		o.BeforeEach(func(t *testing.T) (*testing.T, *procs.OutputFactory) {
-			return t, &procs.OutputFactory{Padding: 5, Capture: true}
+		o.BeforeEach(func(t *testing.T) (*testing.T, *procs.Output) {
+			return t, &procs.Output{Padding: 5, Capture: true}
 		})
 
-		o.Spec("writing a line stores the output", func(t *testing.T, of *procs.OutputFactory) {
+		o.Spec("writing a line stores the output", func(t *testing.T, of *procs.Output) {
 			of.WriteLine("foo", "hello world", false)
 			Expect(t, of.Output()).To(Equal("hello world\n"))
 		})

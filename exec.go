@@ -5,9 +5,16 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
 )
 
-func New(command string) *exec.Cmd {
+type Proc struct {
+	Cmd       *exec.Cmd
+	Output    *Output
+	pipesWait *sync.WaitGroup
+}
+
+func New(command string) *Proc {
 	var cmd *exec.Cmd
 	parts := SplitCommand(command)
 	if len(parts) == 0 {
@@ -16,7 +23,57 @@ func New(command string) *exec.Cmd {
 		cmd = exec.Command(parts[0], parts[1:]...)
 	}
 
-	return cmd
+	return &Proc{
+		Cmd:       cmd,
+		pipesWait: new(sync.WaitGroup),
+	}
+}
+
+// Run the exec.Cmd handling stdout / stderr according to the
+// configured Output struct.
+func (p *Proc) Run() error {
+	if p.Output == nil {
+		return p.Cmd.Run()
+	}
+
+	err := p.Start()
+	if err != nil {
+		p.Output.SystemOutput(fmt.Sprint("Failed to start ", p.Cmd.Args, ": ", err))
+		return err
+	}
+
+	return p.Wait()
+}
+
+// Start the exec.Cmd start.
+func (p *Proc) Start() error {
+	stdout, err := p.Cmd.StdoutPipe()
+	if err != nil {
+		fmt.Println("error creating stdout pipe")
+		return err
+	}
+	stderr, err := p.Cmd.StderrPipe()
+	if err != nil {
+		fmt.Println("error creating stderr pipe")
+		return err
+	}
+
+	if p.pipesWait == nil {
+		p.pipesWait = new(sync.WaitGroup)
+	}
+	p.pipesWait.Add(2)
+
+	go p.Output.LineReader(p.pipesWait, p.Output.Name, stdout, false)
+	go p.Output.LineReader(p.pipesWait, p.Output.Name, stderr, true)
+
+	return p.Cmd.Start()
+}
+
+func (p *Proc) Wait() error {
+	if p.pipesWait != nil {
+		p.pipesWait.Wait()
+	}
+	return p.Cmd.Wait()
 }
 
 func ParseEnv(environ []string) map[string]string {
