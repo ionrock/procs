@@ -13,7 +13,7 @@ func SplitCommand(cmd string) []string {
 }
 
 func SplitCommandEnv(cmd string, getenv func(key string) string) []string {
-	parts, err := shlex.Split(strings.Trim(os.Expand(cmd, getenv), "`"))
+	parts, err := shlex.Split(strings.TrimSpace(strings.Trim(os.Expand(cmd, getenv), "`")))
 	if err != nil {
 		log.Fatal(err)
 	}

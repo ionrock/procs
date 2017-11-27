@@ -20,7 +20,7 @@ func TestOutputFactory(t *testing.T) {
 
 		o.Spec("writing a line stores the output", func(t *testing.T, of *procs.Output) {
 			of.WriteLine("foo", "hello world", false)
-			Expect(t, of.Output()).To(Equal("hello world\n"))
+			Expect(t, of.Output()).To(Equal("hello world"))
 		})
 	})
 }

@@ -1,7 +1,6 @@
 package procs
 
 import (
-	"fmt"
 	"os"
 	"strings"
 )
@@ -17,27 +16,39 @@ func (b *Builder) getConfig(ctx map[string]string) func(string) string {
 		if v, ok := ctx[key]; ok {
 			return v
 		}
-
 		return ""
 	}
-
 }
 
 func (b *Builder) expand(v string, ctx map[string]string) string {
 	return os.Expand(v, b.getConfig(ctx))
 }
 
-func (b *Builder) Command(ctx map[string]string) string {
+func (b *Builder) Command() string {
+	parts := []string{}
+	for _, t := range b.Templates {
+		parts = append(parts, b.expand(t, b.Context))
+	}
+
+	return strings.Join(parts, " ")
+}
+
+func (b *Builder) CommandContext(ctx map[string]string) string {
+	// Build our environment context by starting with our Builder
+	// context and overlay the passed in context map.
+	env := make(map[string]string)
 	for k, v := range b.Context {
-		ctx[k] = b.expand(v, ctx)
+		env[k] = b.expand(v, b.Context)
+	}
+
+	for k, v := range ctx {
+		env[k] = b.expand(v, env)
 	}
 
 	parts := []string{}
 	for _, t := range b.Templates {
-		fmt.Println(t)
-		parts = append(parts, b.expand(t, ctx))
+		parts = append(parts, b.expand(t, env))
 	}
 
-	fmt.Println(parts)
 	return strings.Join(parts, " ")
 }

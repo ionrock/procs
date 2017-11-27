@@ -1,0 +1,5 @@
+[
+  "mysvc ${model} ${action} ${args}",
+  "--endpoint ${source}",
+  "--username ${user}"
+]
