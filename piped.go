@@ -120,7 +120,7 @@ func (pp *PipedProc) setupPipes() error {
 	return nil
 }
 
-func (pp *PipedProc) call(index int) error {
+func (pp *PipedProc) call(index int, wait bool) error {
 	// This hasn't already been started so start it
 	if pp.Cmds[index].Process == nil {
 		if err := pp.Cmds[index].Start(); err != nil {
@@ -138,9 +138,14 @@ func (pp *PipedProc) call(index int) error {
 		defer func() {
 			if err == nil {
 				pp.Pipes[index].Close()
-				err = pp.call(index + 1)
+				err = pp.call(index+1, wait)
 			}
 		}()
+	}
+
+	last := len(pp.Cmds) - 1
+	if index == last && wait == true {
+		return nil
 	}
 
 	return pp.Cmds[index].Wait()
@@ -149,14 +154,36 @@ func (pp *PipedProc) call(index int) error {
 func (pp *PipedProc) Run() (string, error) {
 	pp.setupPipes()
 
-	if pp.OutputHandler != nil {
-	}
-
-	if err := pp.call(0); err != nil {
+	if err := pp.call(0, false); err != nil {
 		fmt.Printf("error calling command: %q\n", err)
 		fmt.Println(string(pp.errBuffer.Bytes()))
 		return "", err
 	}
 
 	return pp.outBuffer.String(), nil
+}
+
+func (pp *PipedProc) Start() error {
+	pp.setupPipes()
+
+	if err := pp.call(0, true); err != nil {
+		fmt.Printf("error calling command: %q\n", err)
+		fmt.Println(string(pp.errBuffer.Bytes()))
+		return err
+	}
+
+	return nil
+}
+
+func (pp *PipedProc) Wait() error {
+	if pp.outputWait != nil {
+		pp.outputWait.Wait()
+	}
+
+	last := len(pp.Cmds) - 1
+	return pp.Cmds[last].Wait()
+}
+
+func (pp *PipedProc) Output() string {
+	return pp.outBuffer.String()
 }

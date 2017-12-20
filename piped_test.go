@@ -50,3 +50,31 @@ func TestPipedProcWithOutput(t *testing.T) {
 		t.Errorf("wrong output: expected %q but got %q", expected, out)
 	}
 }
+
+func TestPipedProcStartAndWait(t *testing.T) {
+	pp := newPipedProc()
+
+	pp.Start()
+	pp.Wait()
+
+	out := pp.Output()
+	if strings.TrimSpace(out) != "foo" {
+		t.Errorf("wrong output: expected foo but got %s", out)
+	}
+}
+
+func TestPipedProcStartAndWaitWithOutput(t *testing.T) {
+	pp := newPipedProc()
+	pp.OutputHandler = func(line string) string {
+		return fmt.Sprintf("x | %s", line)
+	}
+
+	pp.Start()
+	pp.Wait()
+
+	out := pp.Output()
+	expected := "x | foo"
+	if strings.TrimSpace(out) != expected {
+		t.Errorf("wrong output: expected %q but got %q", expected, out)
+	}
+}
