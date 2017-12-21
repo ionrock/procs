@@ -150,6 +150,8 @@ func (p *Process) findCmds() {
 			cmd = append(cmd, part)
 		}
 	}
+
+	p.addCmd(cmd)
 }
 
 func (p *Process) setupOutputHandler() error {
@@ -177,7 +179,15 @@ func (p *Process) setupOutputHandler() error {
 
 	go func() {
 		for line := range p.stdoutChan {
-			// TODO: Make a decision to buffer or not. For now buffer
+			_, err := p.outBuffer.WriteString(p.OutputHandler(line))
+			if err != nil {
+				fmt.Printf("failed to write to buffer: %s", err)
+			}
+		}
+	}()
+
+	go func() {
+		for line := range p.stderrChan {
 			_, err := p.outBuffer.WriteString(p.OutputHandler(line))
 			if err != nil {
 				fmt.Printf("failed to write to buffer: %s", err)
