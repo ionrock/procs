@@ -59,7 +59,7 @@ func (of *Output) LineReader(wg *sync.WaitGroup, name string, r io.Reader, isErr
 }
 
 func (of *Output) SystemOutput(str string) {
-	of.WriteLine("forego", str, false)
+	of.WriteLine("", str, false)
 }
 
 func (of *Output) ErrorOutput(str string) {

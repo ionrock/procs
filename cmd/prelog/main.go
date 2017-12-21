@@ -22,14 +22,10 @@ func main() {
 	// using shell syntax ($ or ${} using os.ExpandEnv)
 	cmd := procs.New(command)
 
-	// Create an Output instance for working with the results of the
-	// command.
-	out := &procs.Output{
-		Name:      *prefix,
-		Capture:   true,
-		Delimiter: "===>", // default is "|"
+	// Add an OutputHandler for adding our prefix.
+	cmd.OutputHandler = func(line string) string {
+		return fmt.Sprintf("%s | %s", *prefix, line)
 	}
-	cmd.Output = out
 
 	// Run our command. This will pipe the output to stdout prefixed
 	// with the name and delimiter defined in the Output.

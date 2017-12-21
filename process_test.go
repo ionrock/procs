@@ -10,8 +10,8 @@ import (
 	"github.com/ionrock/procs"
 )
 
-func newPipedProc() *procs.PipedProc {
-	return &procs.PipedProc{
+func newProcess() *procs.Process {
+	return &procs.Process{
 		Cmds: []*exec.Cmd{
 			exec.Command("echo", "foo"),
 			exec.Command("grep", "foo"),
@@ -20,10 +20,10 @@ func newPipedProc() *procs.PipedProc {
 	}
 }
 
-func TestPipedProc(t *testing.T) {
-	pp := newPipedProc()
+func TestProcess(t *testing.T) {
+	p := newProcess()
 
-	out, err := pp.Run()
+	out, err := p.Run()
 	if err != nil {
 		t.Fatalf("error running program: %s", err)
 	}
@@ -33,14 +33,14 @@ func TestPipedProc(t *testing.T) {
 	}
 }
 
-func TestPipedProcWithOutput(t *testing.T) {
-	pp := newPipedProc()
+func TestProcessWithOutput(t *testing.T) {
+	p := newProcess()
 
-	pp.OutputHandler = func(line string) string {
+	p.OutputHandler = func(line string) string {
 		return fmt.Sprintf("x | %s", line)
 	}
 
-	out, err := pp.Run()
+	out, err := p.Run()
 
 	if err != nil {
 		t.Fatalf("error running program: %s", err)
@@ -51,30 +51,42 @@ func TestPipedProcWithOutput(t *testing.T) {
 	}
 }
 
-func TestPipedProcStartAndWait(t *testing.T) {
-	pp := newPipedProc()
+func TestProcessStartAndWait(t *testing.T) {
+	p := newProcess()
 
-	pp.Start()
-	pp.Wait()
+	p.Start()
+	p.Wait()
 
-	out := pp.Output()
+	out := p.Output()
 	if strings.TrimSpace(out) != "foo" {
 		t.Errorf("wrong output: expected foo but got %s", out)
 	}
 }
 
-func TestPipedProcStartAndWaitWithOutput(t *testing.T) {
-	pp := newPipedProc()
-	pp.OutputHandler = func(line string) string {
+func TestProcessStartAndWaitWithOutput(t *testing.T) {
+	p := newProcess()
+	p.OutputHandler = func(line string) string {
 		return fmt.Sprintf("x | %s", line)
 	}
 
-	pp.Start()
-	pp.Wait()
+	p.Start()
+	p.Wait()
 
-	out := pp.Output()
+	out := p.Output()
 	expected := "x | foo"
 	if strings.TrimSpace(out) != expected {
 		t.Errorf("wrong output: expected %q but got %q", expected, out)
+	}
+}
+
+func TestProcessFromString(t *testing.T) {
+	p := procs.NewProcess("echo 'foo'")
+	out, err := p.Run()
+	if err != nil {
+		t.Fatalf("error running program: %s", err)
+	}
+
+	if strings.TrimSpace(out) != "foo" {
+		t.Errorf("wrong output: expected foo but got %s", out)
 	}
 }
