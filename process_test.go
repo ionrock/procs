@@ -90,3 +90,15 @@ func TestProcessFromString(t *testing.T) {
 		t.Errorf("wrong output: expected foo but got %s", out)
 	}
 }
+
+func TestProcessFromStringWithPipe(t *testing.T) {
+	p := procs.NewProcess("echo 'foo' | grep foo")
+	out, err := p.Run()
+	if err != nil {
+		t.Fatalf("error running program: %s", err)
+	}
+
+	if strings.TrimSpace(out) != "foo" {
+		t.Errorf("wrong output: expected foo but got %s", out)
+	}
+}
