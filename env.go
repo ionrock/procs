@@ -10,7 +10,11 @@ func ParseEnv(environ []string) map[string]string {
 	env := make(map[string]string)
 	for _, e := range environ {
 		pair := strings.SplitN(e, "=", 2)
-		env[pair[0]] = pair[1]
+
+		// There is a chance we can get an env with empty values
+		if len(pair) == 2 {
+			env[pair[0]] = pair[1]
+		}
 	}
 	return env
 }
