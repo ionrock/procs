@@ -19,7 +19,7 @@ the commands can be debugged directly.
 
 The essential usage is to use the `procs.Process` in place of `exec.Cmd`.
 
-```
+```go
 proc := procs.NewProcess("knife search -i node \"role:foo\" | grep test")
 out, err := proc.Run()
 if err != nil {
@@ -34,13 +34,13 @@ The pipes are connected within the `procs.Process` type and no shell is used.
 You can also work with the environment using a `map[string]string`
 rather than a `[]string`.
 
-```
+```go
 proc.Env = map[string]string{"FOO": "bar"}
 ```
 
 There are helpers as well to allow mixing the initial environment with extra values.
 
-```
+```go
 // Parse the []string to a map[string]string
 env := procs.ParseEnv(os.Environ())
 env["FOO"] = "bar"
@@ -57,7 +57,7 @@ that use the library.
 The `prelog` command allows running a command and prefixing the output
 with a value.
 
-```
+```bash
 $ prelog -prefix foo -- echo 'hello world!'
 Running the command
 foo ===> hello world!
@@ -73,7 +73,7 @@ The `cmdtmpl` command uses the `procs.Builder` to create a command
 based on some paramters. It will take a `data.yml` file and
 `template.yml` file to create a command.
 
-```
+```bash
 $ cat example/data.json
 {
   "source": "https://my.example.org",
