@@ -14,7 +14,6 @@ func lineReader(wg *sync.WaitGroup, r io.Reader, out chan string) {
 	defer wg.Done()
 
 	reader := bufio.NewReader(r)
-
 	var buffer bytes.Buffer
 
 	for {
@@ -32,13 +31,10 @@ func lineReader(wg *sync.WaitGroup, r io.Reader, out chan string) {
 				break
 			}
 			buffer.Write(buf[0:i])
-
 			out <- buffer.String()
-
 			buffer.Reset()
 			buf = buf[i+1:]
 		}
-
 		buffer.Write(buf)
 	}
 

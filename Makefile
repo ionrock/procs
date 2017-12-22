@@ -1,3 +1,6 @@
+SOURCEDIR=.
+SOURCES := $(shell find $(SOURCEDIR) -prune -o -name '*.go')
+
 test: dep
 	dep ensure
 	go test .
@@ -9,10 +12,10 @@ endif
 
 all: prelog cmdtmpl
 
-prelog:
+prelog: $(SOURCES)
 	go build ./cmd/prelog
 
-cmdtmpl:
+cmdtmpl: $(SOURCES)
 	go build ./cmd/cmdtmpl
 
 clean:

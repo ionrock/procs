@@ -13,7 +13,13 @@ type Prefixer struct {
 }
 
 func (p *Prefixer) Handler(line string) string {
-	return fmt.Sprintf("%s | %s", p.Prefix, line)
+	// We can output to stdout with our prefix
+	fmt.Printf("%s | %s\n", p.Prefix, line)
+
+	// By returning the line as-is we keep the original output as-is.
+	// This also allows for avoiding the buffering of the output by
+	// returning an empty string.
+	return line
 }
 
 func main() {
