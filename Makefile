@@ -5,6 +5,11 @@ test: dep
 	dep ensure
 	go test .
 
+race: dep
+	dep ensure
+	go test -race .
+
+
 dep:
 ifeq (, $(shell which dep))
 	go get -u github.com/golang/dep/cmd/dep

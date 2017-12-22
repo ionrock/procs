@@ -52,7 +52,6 @@ func TestEnvBuilder(t *testing.T) {
 
 func helperEnvCommand(env map[string]string) *exec.Cmd {
 	cmd := exec.Command(os.Args[0], "-test.run=TestEnvBuilderOverrides")
-	env["GO_WANT_HELPER_PROCESS"] = "1"
 	cmd.Env = procs.Env(env, false)
 	return cmd
 }
@@ -61,13 +60,16 @@ func TestEnvBuilderOverrides(t *testing.T) {
 	if os.Getenv("GO_WANT_HELPER_PROCESS") != "1" {
 		return
 	}
-
-	env := procs.Env(map[string]string{"FOO": "override"}, true)
-	fmt.Println(env[0])
+	for _, envvar := range procs.Env(map[string]string{"FOO": "override"}, true) {
+		fmt.Println(envvar)
+	}
 }
 
 func TestEnvBuilderWithEnv(t *testing.T) {
-	cmd := helperEnvCommand(map[string]string{"FOO": "default"})
+	cmd := helperEnvCommand(map[string]string{
+		"GO_WANT_HELPER_PROCESS": "1",
+		"FOO": "default",
+	})
 	out, err := cmd.Output()
 	if err != nil {
 		t.Fatalf("error running helper: %s", err)
