@@ -1,6 +1,6 @@
 # Procs
 
-![](https://travis-ci.org/ionrock/procs.svg?branch=master)
+[![](https://travis-ci.org/ionrock/procs.svg?branch=master)](https://travis-ci.org/ionrock/procs)
 [![Go Report Card](https://goreportcard.com/badge/github.com/ionrock/procs)](https://goreportcard.com/report/github.com/ionrock/procs)
 [![GoDoc](https://godoc.org/github.com/ionrock/procs?status.svg)](https://godoc.org/github.com/ionrock/procs)
 
