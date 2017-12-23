@@ -1,6 +1,8 @@
 # Procs
 
 ![](https://travis-ci.org/ionrock/procs.svg?branch=master)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ionrock/procs)](https://goreportcard.com/report/github.com/ionrock/procs)
+![GoDoc](https://godoc.org/github.com/ionrock/procs?status.svg)
 
 Procs is a library to make working with command line applications a
 little nicer.
