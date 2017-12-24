@@ -33,9 +33,6 @@ type Process struct {
 	// buffered output and/or output written to stdout.
 	OutputHandler func(string) string
 
-	// TODO: This can really be private
-	Pipes []*io.PipeWriter
-
 	// When no output is given, we'll buffer output in these vars.
 	errBuffer bytes.Buffer
 	outBuffer bytes.Buffer
@@ -183,10 +180,6 @@ func (p *Process) setupOutputHandler(cmd *exec.Cmd) error {
 }
 
 func (p *Process) setupPipes() error {
-	if p.Pipes == nil {
-		p.Pipes = make([]*io.PipeWriter, len(p.Cmds)-1)
-	}
-
 	last := len(p.Cmds) - 1
 
 	for i, cmd := range p.Cmds[:last] {
