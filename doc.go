@@ -59,3 +59,5 @@ The Env function will overlay the passed in environment with the
 parent environment and ParseEnv takes a environment []string and
 converts it to a map[string]string for use with a Proc.
 */
+
+package procs
