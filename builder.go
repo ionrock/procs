@@ -24,6 +24,7 @@ func (b *Builder) expand(v string, ctx map[string]string) string {
 	return os.Expand(v, b.getConfig(ctx))
 }
 
+// Command returns the result of the templates as a single string.
 func (b *Builder) Command() string {
 	parts := []string{}
 	for _, t := range b.Templates {
@@ -33,6 +34,9 @@ func (b *Builder) Command() string {
 	return strings.Join(parts, " ")
 }
 
+// CommandContext returns the result of the templates as a single
+// string, but allows providing an environment context as a
+// map[string]string for expansions.
 func (b *Builder) CommandContext(ctx map[string]string) string {
 	// Build our environment context by starting with our Builder
 	// context and overlay the passed in context map.

@@ -11,6 +11,7 @@ import (
 	"sync"
 )
 
+// Process is intended to be used like exec.Cmd where possible.
 type Process struct {
 	// CmdString takes a string and parses it into the relevant cmds
 	CmdString string
@@ -118,6 +119,8 @@ func (p *Process) findCmds() {
 	p.addCmd(cmd)
 }
 
+// lineReader takes will read a line in the io.Reader and write to the
+// Process output buffer and use any OutputHandler that exists.
 func (p *Process) lineReader(wg *sync.WaitGroup, r io.Reader) {
 	defer wg.Done()
 
@@ -152,12 +155,16 @@ func (p *Process) lineReader(wg *sync.WaitGroup, r io.Reader) {
 	}
 }
 
+// checkErr shortens the creation of the pipes by bailing out with a
+// log.Fatal.
 func checkErr(msg string, err error) {
 	if err != nil {
 		log.Fatalf("%s: %s", msg, err)
 	}
 }
 
+// setupOutputHandler configures the last cmd in the list of cmds to
+// use the output handler defined.
 func (p *Process) setupOutputHandler(cmd *exec.Cmd) error {
 	stdout, err := cmd.StdoutPipe()
 	checkErr("error creating stdout pipe", err)
@@ -222,37 +229,7 @@ func (p *Process) wait() error {
 	return nil
 }
 
-func (p *Process) call(index int, wait bool) error {
-	// This hasn't already been started so start it
-	if p.Cmds[index].Process == nil {
-		if err := p.Cmds[index].Start(); err != nil {
-			return err
-		}
-	}
-
-	// See if we have more cmds to run and start them by recursively calling Call
-	if len(p.Cmds[index:]) > 1 {
-		err := p.Cmds[index+1].Start()
-		if err != nil {
-			return err
-		}
-
-		defer func() {
-			if err == nil {
-				p.Pipes[index].Close()
-				err = p.call(index+1, wait)
-			}
-		}()
-	}
-
-	last := len(p.Cmds) - 1
-	if index == last && wait == true {
-		return nil
-	}
-
-	return p.Cmds[index].Wait()
-}
-
+// Run executes the cmds and returns the output as a string and any error.
 func (p *Process) Run() (string, error) {
 	p.findCmds()
 	p.setupPipes()
@@ -268,15 +245,10 @@ func (p *Process) Run() (string, error) {
 	return p.outBuffer.String(), nil
 }
 
+// Start will start the list of cmds.
 func (p *Process) Start() error {
 	p.findCmds()
 	p.setupPipes()
-
-	// if err := p.call(0, true); err != nil {
-	// 	fmt.Printf("error calling command: %q\n", err)
-	// 	fmt.Println(string(p.errBuffer.Bytes()))
-	// 	return err
-	// }
 
 	if err := p.start(); err != nil {
 		fmt.Printf("error calling command: %q\n", err)
@@ -299,6 +271,7 @@ func (p *Process) Start() error {
 	return nil
 }
 
+// Wait will block, waiting for the commands to finish.
 func (p *Process) Wait() error {
 	if p.outputWait != nil {
 		p.outputWait.Wait()
@@ -308,6 +281,7 @@ func (p *Process) Wait() error {
 	return p.Cmds[last].Wait()
 }
 
+// Output returns the buffered output as a string.
 func (p *Process) Output() string {
 	return p.outBuffer.String()
 }

@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// ParseEnv takes an environment []string and converts it to a map[string]string.
 func ParseEnv(environ []string) map[string]string {
 	env := make(map[string]string)
 	for _, e := range environ {
@@ -19,6 +20,10 @@ func ParseEnv(environ []string) map[string]string {
 	return env
 }
 
+// Env takes a map[string]string and converts it to a []string that
+// can be used with exec.Cmd. The useEnv boolean flag will include the
+// current process environment, overlaying the provided env
+// map[string]string.
 func Env(env map[string]string, useEnv bool) []string {
 	envlist := []string{}
 
