@@ -19,37 +19,71 @@ the commands can be debugged directly.
 
 ## Basic Usage
 
-The essential usage is to use the `procs.Process` in place of `exec.Cmd`.
+The majority of this functionality is intended to be included the
+procs.Process.
+
+### Defining a Command
+
+A command can be defined by a string rather than a []string. Normally,
+this also implies that the library will run the command in a shell,
+exposing a potential man in the middle attack. Rather than using a
+shell, procs lexically parses the command for the different
+arguments. It also allows for pipes in order to string commands
+together.
 
 ```go
-proc := procs.NewProcess("knife search -i node \"role:foo\" | grep test")
-out, err := proc.Run()
-if err != nil {
-	panic(err)
+p := procs.NewProcess("kubectl get events | grep dev")
+```
+
+### Output Handling
+
+One use case that is cumbersome is using the piped output from a
+command. For example, lets say we wanted to start a couple commands
+and have each command have its own prefix in stdout, while still
+capturing the output of the command as-is.
+
+```go
+p := procs.NewProcess("cmd1")
+p.OutputHandler = func(line string) string {
+	fmt.Printf("cmd1 | %s\n")
+	return line
 }
-
-fmt.Print(out)
+out, _ := p.Run()
+fmt.Println(out)
 ```
 
-The pipes are connected within the `procs.Process` type and no shell is used.
+Whatever is returned from the `OutputHandler` will be in the buffered
+output. In this way you can choose to filter or skip output buffering
+completely.
 
-You can also work with the environment using a `map[string]string`
-rather than a `[]string`.
+### Environment Variables
+
+Rather than use the `exec.Cmd` `[]string` environment variables, a
+`procs.Process` uses a `map[string]string` for environment variables.
 
 ```go
-proc.Env = map[string]string{"FOO": "bar"}
+p := procs.NewProcess("echo $FOO")
+p.Env = map[string]string{"FOO": "foo"}
 ```
 
-There are helpers as well to allow mixing the initial environment with extra values.
+Also, environment variables will be expanded automatically using the
+`os.Expand` semantics and the provided environment. If no environment
+is provided, the parent process environment is used.
+
+There is also a `Env` function that can help to merge an existing
+environment with the parent environment to allow overriding parent
+variables.
 
 ```go
-// Parse the []string to a map[string]string
-env := procs.ParseEnv(os.Environ())
-env["FOO"] = "bar"
-proc.Env = env
+myenv := map[string]string{"USER": "foo"}
+env := ParseEnv(Env(myenv, true))
 ```
 
-## Examples
+The `Env` function will overlay the passed in environment with the
+parent environment and `ParseEnv` takes a environment `[]string` and
+converts it to a `map[string]string` for use with a Proc.
+
+## Example Applications
 
 Take a look in the [`cmd`](./cmd/) dir for some simple applications
 that use the library.
