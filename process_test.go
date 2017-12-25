@@ -2,7 +2,6 @@ package procs_test
 
 import (
 	"fmt"
-	"io"
 	"os/exec"
 	"strings"
 	"testing"
@@ -16,7 +15,6 @@ func newProcess() *procs.Process {
 			exec.Command("echo", "foo"),
 			exec.Command("grep", "foo"),
 		},
-		Pipes: make([]*io.PipeWriter, 2),
 	}
 }
 
