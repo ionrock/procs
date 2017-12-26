@@ -12,11 +12,6 @@ place of an API. Often times you want to do things like output stdout
 within your own logs or ensure that every time the command is called,
 there are a standard set of flags that are used.
 
-For example, I'm automating [Chef](https://chef.io) usage within CI
-using the [knife]() tool rather than reimplement and maintain an API
-client in client in Go. This also ensures that when things go wrong,
-the commands can be debugged directly.
-
 ## Basic Usage
 
 The majority of this functionality is intended to be included the
@@ -55,6 +50,9 @@ fmt.Println(out)
 Whatever is returned from the `OutputHandler` will be in the buffered
 output. In this way you can choose to filter or skip output buffering
 completely.
+
+You can also define a `ErrHandler` using the same signature to get the
+same filtering for stderr.
 
 ### Environment Variables
 
