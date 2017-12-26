@@ -11,6 +11,8 @@ import (
 	"sync"
 )
 
+type OutHandler func(string) string
+
 // Process is intended to be used like exec.Cmd where possible.
 type Process struct {
 	// CmdString takes a string and parses it into the relevant cmds
@@ -31,7 +33,10 @@ type Process struct {
 	// on the output. The simple interface is to accept a string (a
 	// line of output) and return a string that will be included in the
 	// buffered output and/or output written to stdout.
-	OutputHandler func(string) string
+	OutputHandler OutHandler
+
+	// ErrHandler is a OutputHandler for stderr.
+	ErrHandler OutHandler
 
 	// When no output is given, we'll buffer output in these vars.
 	errBuffer bytes.Buffer
@@ -118,7 +123,7 @@ func (p *Process) findCmds() {
 
 // lineReader takes will read a line in the io.Reader and write to the
 // Process output buffer and use any OutputHandler that exists.
-func (p *Process) lineReader(wg *sync.WaitGroup, r io.Reader) {
+func (p *Process) lineReader(wg *sync.WaitGroup, r io.Reader, w *bytes.Buffer, handler OutHandler) {
 	defer wg.Done()
 
 	reader := bufio.NewReader(r)
@@ -141,10 +146,10 @@ func (p *Process) lineReader(wg *sync.WaitGroup, r io.Reader) {
 
 			buffer.Write(buf[0:i])
 			outLine := buffer.String()
-			if p.OutputHandler != nil {
-				outLine = p.OutputHandler(outLine)
+			if handler != nil {
+				outLine = handler(outLine)
 			}
-			p.outBuffer.WriteString(outLine)
+			w.WriteString(outLine)
 			buffer.Reset()
 			buf = buf[i+1:]
 		}
@@ -160,94 +165,59 @@ func checkErr(msg string, err error) {
 	}
 }
 
-// setupOutputHandler configures the last cmd in the list of cmds to
-// use the output handler defined.
-func (p *Process) setupOutputHandler(cmd *exec.Cmd) error {
+func (p *Process) setupPipes() error {
+	last := len(p.Cmds) - 1
+
+	if last != 0 {
+		for i, cmd := range p.Cmds[:last] {
+			var err error
+
+			p.Cmds[i+1].Stdin, err = cmd.StdoutPipe()
+			if err != nil {
+				fmt.Printf("error creating stdout pipe: %s\n", err)
+				return err
+			}
+
+			cmd.Stderr = &p.errBuffer
+		}
+	}
+
+	cmd := p.Cmds[last]
 	stdout, err := cmd.StdoutPipe()
-	checkErr("error creating stdout pipe", err)
+	if err != nil {
+		fmt.Printf("error creating stdout pipe: %s\n", err)
+		return err
+	}
 
 	stderr, err := cmd.StderrPipe()
-	checkErr("error creating stderr pipe", err)
+	if err != nil {
+		fmt.Printf("error creating stderr pipe: %s\n", err)
+		return err
+	}
 
 	p.outputWait = new(sync.WaitGroup)
 	p.outputWait.Add(2)
 
 	// These close the stdout/err channels
-	go p.lineReader(p.outputWait, stdout)
-	go p.lineReader(p.outputWait, stderr)
+	go p.lineReader(p.outputWait, stdout, &p.outBuffer, p.OutputHandler)
+	go p.lineReader(p.outputWait, stderr, &p.errBuffer, p.ErrHandler)
 
-	return nil
-}
-
-func (p *Process) setupPipes() error {
-	last := len(p.Cmds) - 1
-
-	for i, cmd := range p.Cmds[:last] {
-		var err error
-
-		p.Cmds[i+1].Stdin, err = cmd.StdoutPipe()
-		if err != nil {
-			fmt.Printf("error creating stdout pipe: %s\n", err)
-			return err
-		}
-
-		cmd.Stderr = &p.errBuffer
-	}
-
-	err := p.setupOutputHandler(p.Cmds[last])
-	return err
-}
-
-func (p *Process) start() error {
-	for i, cmd := range p.Cmds {
-		err := cmd.Start()
-		if err != nil {
-			// Wait for command that ran earlier to finish.
-			defer func() {
-				for _, precmd := range p.Cmds[0:i] {
-					precmd.Wait()
-				}
-			}()
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (p *Process) wait() error {
-	for _, cmd := range p.Cmds {
-		cmd.Wait()
-	}
 	return nil
 }
 
 // Run executes the cmds and returns the output as a string and any error.
-func (p *Process) Run() (string, error) {
-	p.findCmds()
-	p.setupPipes()
-
-	if err := p.start(); err != nil {
-		fmt.Printf("error calling command: %q\n", err)
-		fmt.Println(string(p.errBuffer.Bytes()))
-		return "", err
+func (p *Process) Run() error {
+	if err := p.Start(); err != nil {
+		return err
 	}
 
-	p.wait()
-
-	return p.outBuffer.String(), nil
+	return p.Wait()
 }
 
 // Start will start the list of cmds.
 func (p *Process) Start() error {
 	p.findCmds()
 	p.setupPipes()
-
-	if err := p.start(); err != nil {
-		fmt.Printf("error calling command: %q\n", err)
-		fmt.Println(string(p.errBuffer.Bytes()))
-		return err
-	}
 
 	for i, cmd := range p.Cmds {
 		err := cmd.Start()
@@ -270,11 +240,19 @@ func (p *Process) Wait() error {
 		p.outputWait.Wait()
 	}
 
-	last := len(p.Cmds) - 1
-	return p.Cmds[last].Wait()
+	var err error
+	for _, cmd := range p.Cmds {
+		err = cmd.Wait()
+	}
+	return err
 }
 
-// Output returns the buffered output as a string.
-func (p *Process) Output() string {
-	return p.outBuffer.String()
+// Output returns the buffered output as []byte.
+func (p *Process) Output() ([]byte, error) {
+	return p.outBuffer.Bytes(), nil
+}
+
+// ErrOutput returns the buffered stderr as []byte
+func (p *Process) ErrOutput() ([]byte, error) {
+	return p.errBuffer.Bytes(), nil
 }
