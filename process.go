@@ -34,7 +34,21 @@ type Process struct {
 	// OutputHandler can be defined to perform any sort of processing
 	// on the output. The simple interface is to accept a string (a
 	// line of output) and return a string that will be included in the
-	// buffered output and/or output written to stdout.
+	// buffered output and/or output written to stdout.'
+	//
+	// For example defining the Process as:
+	//
+	//     prefix := "myapp"
+	//     p := &procs.Process{
+	//         OutputHandler: func(line string) string {
+	//             return fmt.Sprintf("%s | %s", prefix, line)
+	//         },
+	//     }
+	//
+	// This would prefix the stdout lines with a "myapp | ".
+	//
+	// By the default, this function is nil and will be skipped, with
+	// the unchanged line being added to the respective output buffer.
 	OutputHandler OutHandler
 
 	// ErrHandler is a OutputHandler for stderr.
@@ -50,6 +64,9 @@ type Process struct {
 }
 
 // NewProcess creates a new *Process from a command string.
+//
+// It is assumed that the user will mutate the resulting *Process by
+// setting the necessary attributes.
 func NewProcess(command string) *Process {
 	return &Process{CmdString: command}
 }
