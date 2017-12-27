@@ -84,7 +84,8 @@ converts it to a `map[string]string` for use with a Proc.
 ## Example Applications
 
 Take a look in the [`cmd`](./cmd/) dir for some simple applications
-that use the library.
+that use the library. You can also `make all` to build them. The
+examples below assume you've built them locally.
 
 ### Prelog
 
@@ -92,13 +93,13 @@ The `prelog` command allows running a command and prefixing the output
 with a value.
 
 ```bash
-$ prelog -prefix foo -- echo 'hello world!'
+$ ./prelog -prefix foo -- echo 'hello world!'
 Running the command
-foo ===> hello world!
+foo | hello world!
 Accessing the output without a prefix.
 hello world!
 Running the command with Start / Wait
-foo ===> hello world!
+foo | hello world!
 ```
 
 ### Cmdtmpl
@@ -122,9 +123,9 @@ $ cat example/template.json
   "--endpoint ${source}",
   "--username ${user}"
 ]
-$ cmdtmpl -data example/data.json -template example/template.json
+$ ./cmdtmpl -data example/data.json -template example/template.json
 Command: mysvc foo widget create -f new -i imporoved --endpoint https://my.example.org --username foo
-$ cmdtmpl -data example/data.json -template example/template.json -field user=bar
+$ ./cmdtmpl -data example/data.json -template example/template.json -field user=bar
 Command: mysvc foo widget create -f new -i imporoved --endpoint https://my.example.org --username bar
 ```
 
