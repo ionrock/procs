@@ -132,4 +132,19 @@ Command: mysvc foo widget create -f new -i imporoved --endpoint https://my.examp
 
 The `procmon` command acts like
 [foreman](https://github.com/ddollar/foreman) with the difference
-being it uses a JSON file with key value pairs instead of a Procfile. This example
+being it uses a JSON file with key value pairs instead of a
+Procfile. This example uses the `procs.Manager` to manage a set of
+`procs.Processes`.
+
+```bash
+$ cat example/procfile.json
+{
+  "web": "python -m SimpleHTTPServer"
+}
+$ ./procmon -procfile example/procfile.json
+web | Starting web with python -m SimpleHTTPServer
+```
+
+You can then access http://localhost:8000 to see the logs. You can
+also kill the child process and see `procmon` recognizing it has
+exited and exit itself.
