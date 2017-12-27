@@ -15,7 +15,7 @@ ifeq (, $(shell which dep))
 	go get -u github.com/golang/dep/cmd/dep
 endif
 
-all: prelog cmdtmpl
+all: prelog cmdtmpl procmon
 
 prelog: $(SOURCES)
 	go build ./cmd/prelog

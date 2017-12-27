@@ -107,10 +107,10 @@ func (m *Manager) Wait() error {
 	wg.Add(len(m.Processes))
 
 	for _, p := range m.Processes {
-		go func() {
+		go func(proc *Process) {
 			defer wg.Done()
-			p.Wait()
-		}()
+			proc.Wait()
+		}(p)
 	}
 
 	wg.Wait()
