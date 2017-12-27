@@ -11,6 +11,8 @@ import (
 	"sync"
 )
 
+// OutHandler defines the interface for writing output handlers for
+// Process objects.
 type OutHandler func(string) string
 
 // Process is intended to be used like exec.Cmd where possible.
@@ -134,9 +136,9 @@ func (p *Process) lineReader(wg *sync.WaitGroup, r io.Reader, w *bytes.Buffer, h
 
 		if n, err := reader.Read(buf); err != nil {
 			return
-		} else {
-			buf = buf[:n]
 		}
+
+		buf = buf[:n]
 
 		for {
 			i := bytes.IndexByte(buf, '\n')
