@@ -134,7 +134,8 @@ func (p *Process) lineReader(wg *sync.WaitGroup, r io.Reader, w *bytes.Buffer, h
 	for {
 		buf := make([]byte, 1024)
 
-		if n, err := reader.Read(buf); err != nil {
+		n, err := reader.Read(buf)
+		if err != nil {
 			return
 		}
 
