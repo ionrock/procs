@@ -8,11 +8,11 @@ import (
 	"github.com/ionrock/procs"
 )
 
-type Prefixer struct {
+type prefixer struct {
 	Prefix string
 }
 
-func (p *Prefixer) Handler(line string) string {
+func (p *prefixer) handler(line string) string {
 	// We can output to stdout with our prefix
 	fmt.Printf("%s | %s\n", p.Prefix, line)
 
@@ -37,7 +37,7 @@ func main() {
 	cmd := procs.NewProcess(command)
 
 	// Add an OutputHandler for adding our prefix.
-	prefixer := &Prefixer{*prefix}
+	prefixer := &prefixer{*prefix}
 	cmd.OutputHandler = prefixer.Handler
 
 	// Run our command. This will pipe the output to stdout prefixed
