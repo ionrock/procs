@@ -247,6 +247,23 @@ func (p *Process) Wait() error {
 	return err
 }
 
+// Stop tries to stop the process.
+func (p *Process) Stop() error {
+	for _, cmd := range p.Cmds {
+		// ProcessState means it is already exited.
+		if cmd.ProcessState != nil {
+			continue
+		}
+
+		err := cmd.Process.Kill()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
 // Output returns the buffered output as []byte.
 func (p *Process) Output() ([]byte, error) {
 	return p.outBuffer.Bytes(), nil

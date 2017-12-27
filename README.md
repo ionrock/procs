@@ -127,3 +127,9 @@ Command: mysvc foo widget create -f new -i imporoved --endpoint https://my.examp
 $ cmdtmpl -data example/data.json -template example/template.json -field user=bar
 Command: mysvc foo widget create -f new -i imporoved --endpoint https://my.example.org --username bar
 ```
+
+### Procmon
+
+The `procmon` command acts like
+[foreman](https://github.com/ddollar/foreman) with the difference
+being it uses a JSON file with key value pairs instead of a Procfile. This example
