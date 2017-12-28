@@ -1,3 +1,10 @@
+// Procs is a library to make working with command line applications a
+// little nicer.
+//
+// The goal is to expand on the os/exec package by providing some
+// features usually accomplished in a shell, without having to resort to
+// a shell. Procs also tries to make working with output simpler by
+// providing a simple line handler API over working with io pipes.
 package procs
 
 import (
