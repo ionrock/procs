@@ -5,6 +5,13 @@
 // features usually accomplished in a shell, without having to resort to
 // a shell. Procs also tries to make working with output simpler by
 // providing a simple line handler API over working with io pipes.
+//
+// Finally, while the hope is that procs provides some convenience, it
+// is also a goal to help make it easier to write more secure
+// code. For example, the avoidance of the use of a shell and the ability
+// to manage the environment as a map[string]string are both measures
+// that intend to make it easier to accomplish things like avoiding
+// outputting secrets and opening the door for MITM attacks.
 package procs
 
 import (
