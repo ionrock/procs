@@ -1,8 +1,6 @@
 package procs_test
 
 import (
-	"fmt"
-	"os"
 	"testing"
 
 	"github.com/apoydence/onpar"
@@ -29,20 +27,6 @@ func TestSplitCommand(t *testing.T) {
 		})
 
 		o.Spec("pass with a pipe", matchSplitCommand)
-	})
-
-	o.Group("replace with os environment", func() {
-		o.BeforeEach(func(t *testing.T) (*testing.T, []string, []string) {
-			envvar := "PROCS_SPLIT_ENVVAR_TEST"
-			os.Setenv(envvar, "bar")
-
-			parts := procs.SplitCommand(fmt.Sprintf("echo ${%s}", envvar))
-
-			expected := []string{"echo", "bar"}
-			return t, parts, expected
-		})
-
-		o.Spec("expand values found in env", matchSplitCommand)
 	})
 
 	o.Group("replace with specific context", func() {

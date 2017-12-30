@@ -87,12 +87,8 @@ func NewProcess(command string) *Process {
 	return &Process{CmdString: command}
 }
 
-// internal expand method to use the os env or proc env.
+// internal expand method to use the proc env.
 func (p *Process) expand(s string) string {
-	if p.Env != nil {
-		return os.ExpandEnv(s)
-	}
-
 	return os.Expand(s, func(key string) string {
 		v, _ := p.Env[key]
 		return v

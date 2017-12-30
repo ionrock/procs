@@ -76,27 +76,27 @@ p := procs.NewProcess("echo $FOO")
 p.Env = map[string]string{"FOO": "foo"}
 ```
 
-Also, environment variables will be expanded automatically using the
-`os.Expand` semantics and the provided environment.
+Also, environment variables defined by the `Process.Env` can be
+expanded automatically using the `os.Expand` semantics and the
+provided environment.
 
-Note that **if no environment is provided, the parent process
-environment is used**. It is recommended to be explicit with your
-environment variables as they can be used in replacements within the
-commands. Again, you can predefine the `exec.Cmd` to avoid this
-replacement.
-
-There is also a `Env` function that can help to merge an existing
-environment with the parent environment to allow overriding parent
-variables.
+There is a `ParseEnv` function that can help to merge the parent
+processes' environment with any new values.
 
 ```go
-myenv := map[string]string{"USER": "foo"}
-env := ParseEnv(Env(myenv, true))
+env := ParseEnv(os.Environ())
+env["USER"] = "foo"
 ```
 
-The `Env` function will overlay the passed in environment with the
-parent environment and `ParseEnv` takes a environment `[]string` and
-converts it to a `map[string]string` for use with a Proc.
+Finally, if you are building commands manually, the `Env` function can
+take a `map[string]string` and convert it to a `[]string` for use with
+an `exec.Cmd`. The `Env` function also accepts a `useEnv` bool to help
+include the parent process environment.
+
+```go
+cmd := exec.Command("knife", "cookbook", "show", cb)
+cmd.Env = Env(map[string]string{"USER": "knife-user"}, true)
+```
 
 ## Example Applications
 
