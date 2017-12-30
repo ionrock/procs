@@ -8,10 +8,12 @@
 //
 // Finally, while the hope is that procs provides some convenience, it
 // is also a goal to help make it easier to write more secure
-// code. For example, the avoidance of the use of a shell and the ability
-// to manage the environment as a map[string]string are both measures
-// that intend to make it easier to accomplish things like avoiding
-// outputting secrets and opening the door for MITM attacks.
+// code. For example, avoiding a shell and the ability to manage the
+// environment as a map[string]string are both measures that intend to
+// make it easier to accomplish things like avoiding outputting
+// secrets and opening the door for MITM attacks. With that said, it is
+// always important to consider the security implications, especially
+// when you are working with untrusted input or sensitive data.
 package procs
 
 import (
