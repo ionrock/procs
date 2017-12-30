@@ -9,7 +9,7 @@ import (
 func ExampleSplitCommand() {
 	parts := procs.SplitCommand("echo 'hello world'")
 	for i, p := range parts {
-		fmt.Printf("%d %s", i+1, p)
+		fmt.Printf("%d %s\n", i+1, p)
 	}
 
 	// Output:
@@ -34,7 +34,7 @@ func ExampleSplitCommandEnv() {
 	parts := procs.SplitCommandEnv("echo '$GREETING $NAME $PASSWORD'", getenv)
 
 	for i, p := range parts {
-		fmt.Printf("%d %s", i+1, p)
+		fmt.Printf("%d %s\n", i+1, p)
 	}
 
 	// Output:
