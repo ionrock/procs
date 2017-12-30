@@ -18,11 +18,16 @@ func Example() {
 		},
 	}
 
-	p := procs.NewProcess(b.Command())
+	cmd := b.Command()
+
+	fmt.Println(cmd)
+
+	p := procs.NewProcess(cmd)
 
 	p.Run()
 	out, _ := p.Output()
 	fmt.Println(string(out))
 	// Output:
+	// echo eric | grep eric
 	// eric
 }
