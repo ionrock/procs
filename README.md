@@ -22,12 +22,24 @@ procs.Process.
 A command can be defined by a string rather than a []string. Normally,
 this also implies that the library will run the command in a shell,
 exposing a potential man in the middle attack. Rather than using a
-shell, procs lexically parses the command for the different
-arguments. It also allows for pipes in order to string commands
-together.
+shell, procs [lexically
+parses](https://github.com/flynn-archive/go-shlex) the command for the
+different arguments. It also allows for pipes in order to string
+commands together.
 
 ```go
 p := procs.NewProcess("kubectl get events | grep dev")
+```
+
+You can also define a new `Process` by passing in predefined commands.
+
+```go
+cmds := []*exec.Cmd{
+	exec.Command("kubectl", "get", "events"),
+	exec.Command("grep", "dev"),
+}
+
+p := procs.Process{Cmds: cmds}
 ```
 
 ### Output Handling
@@ -65,8 +77,13 @@ p.Env = map[string]string{"FOO": "foo"}
 ```
 
 Also, environment variables will be expanded automatically using the
-`os.Expand` semantics and the provided environment. If no environment
-is provided, the parent process environment is used.
+`os.Expand` semantics and the provided environment.
+
+Note that **if no environment is provided, the parent process
+environment is used**. It is recommended to be explicit with your
+environment variables as they can be used in replacements within the
+commands. Again, you can predefine the `exec.Cmd` to avoid this
+replacement.
 
 There is also a `Env` function that can help to merge an existing
 environment with the parent environment to allow overriding parent
