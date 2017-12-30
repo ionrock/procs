@@ -12,7 +12,7 @@ func ExampleSplitCommand() {
 		fmt.Printf("%d %s", i+1, p)
 	}
 
-	// Output
+	// Output:
 	// 1 echo
 	// 2 hello world
 }
@@ -37,7 +37,7 @@ func ExampleSplitCommandEnv() {
 		fmt.Printf("%d %s", i+1, p)
 	}
 
-	// Output
+	// Output:
 	// 1 echo
 	// 2 hello world!
 }
