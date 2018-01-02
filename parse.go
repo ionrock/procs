@@ -12,7 +12,7 @@ import (
 // like a shell, returning a []string that can be used as arguments to
 // exec.Command.
 func SplitCommand(cmd string) []string {
-	return SplitCommandEnv(cmd, os.Getenv)
+	return SplitCommandEnv(cmd, nil)
 }
 
 // SplitCommandEnv parses a command and splits it into lexical
@@ -21,9 +21,16 @@ func SplitCommand(cmd string) []string {
 // function that will be used when expanding values within the parsed
 // arguments.
 func SplitCommandEnv(cmd string, getenv func(key string) string) []string {
-	parts, err := shlex.Split(strings.TrimSpace(strings.Trim(os.Expand(cmd, getenv), "`")))
+	parts, err := shlex.Split(strings.TrimSpace(cmd))
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	if getenv != nil {
+		for i, p := range parts {
+			parts[i] = os.Expand(p, getenv)
+		}
+	}
+
 	return parts
 }
