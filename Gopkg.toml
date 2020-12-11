@@ -23,7 +23,7 @@
 
 [[constraint]]
   branch = "master"
-  name = "github.com/apoydence/onpar"
+  name = "github.com/poy/onpar"
 
 [[constraint]]
   branch = "master"
