@@ -3,9 +3,9 @@ package procs_test
 import (
 	"testing"
 
-	"github.com/apoydence/onpar"
-	. "github.com/apoydence/onpar/expect"
-	. "github.com/apoydence/onpar/matchers"
+	"github.com/poy/onpar"
+	. "github.com/poy/onpar/expect"
+	. "github.com/poy/onpar/matchers"
 	"github.com/ionrock/procs"
 )
 
